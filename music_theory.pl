@@ -273,14 +273,15 @@ main_menu :-
     repeat,
     nl,
     writeln('1. Akkord shiljuuleh (Transpose Chord)'),
-    writeln('2. Tuhkiiryn gamm harah (Scale)'),
+    writeln('2. Tulhkuuriin gamm harah (Scale)'),
     writeln('3. Diatonik akkorduud harah (Diatonic Chords)'),
     writeln('4. Akkord ali tuhkvvrt bagtakhyg harah (Key Finder)'),
-    writeln('5. Garakh (Exit)'),
+    writeln('5. Akkordod hereglegdeh note iig harah (Chord Tunes)'),
+    writeln('6. Garakh (Exit)'),
     writeln('------------------------------------------'),
-    write('Songolt (1-5): '),
+    write('Songolt (1-6): '),
     read(Choice),
-    ( Choice == 5 -> 
+    ( Choice == 6 -> 
         writeln('Bayartai!'), ! 
     ; 
         handle_choice(Choice),
@@ -311,11 +312,16 @@ handle_choice(4) :-
     ask_until_valid('Akkordoo oruul (jishee ni: \'Am7\' haaltiig zaawal bicne vv!): ', is_valid_chord, Chord),
     keys_containing_chord(major, Chord, MajKeys),
     keys_containing_chord(minor, Chord, MinKeys),
-    format('~n>>> ~w bagtsan Major tuhkiiruud: ~w <<<~n', [Chord, MajKeys]),
-    format('>>> ~w bagtsan Minor tuhkiiruud: ~w <<<~n', [Chord, MinKeys]).
+    format('~n>>> ~w bagtsan Major tulhuuruud: ~w <<<~n', [Chord, MajKeys]),
+    format('>>> ~w bagtsan Minor tulhuuruud: ~w <<<~n', [Chord, MinKeys]).
+
+handle_choice(5) :-
+    ask_until_valid('Akkordoo oruul (jishee ni: \'Am7\' haaltiig zaawal bicne vv!): ', is_valid_chord, Chord),
+    chord_tones(Chord, T),
+    format('~n>>> ~w iin note uud: ~w <<<~n', [Chord, T]).
 
 % Цэсний дугаар буруу үед
 handle_choice(Choice) :-
-    \+ member(Choice, [1, 2, 3, 4, 5]),
+    \+ member(Choice, [1, 2, 3, 4, 5, 6]),
     nl,
-    writeln('!!! ALDAA: 1-5-iin hoorond too songono uu. !!!').
+    writeln('!!! ALDAA: 1-6-iin hoorond too songono uu. !!!').
