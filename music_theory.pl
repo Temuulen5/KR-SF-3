@@ -249,3 +249,73 @@ transpose_progression(ProgressionIn, Semitones, ProgressionOut) :-
         ProgressionIn,
         ProgressionOut
     ).
+% Зөв утга оруулах хүртэл зогсолтгүй асууна
+ask_until_valid(Prompt, CheckPredicate, Value) :-
+    repeat,
+    write(Prompt), 
+    read(Input),
+    (   call(CheckPredicate, Input) -> 
+        Value = Input, ! 
+    ;   writeln('!!! Aldaa: Buruu bna. Ta zuv utga oruulna uu (jishee ni: \'C\', \'Am\', \'major\'). !!!'),
+        fail 
+    ).
+
+% Шалгах дүрмүүд
+is_valid_note(N) :- note_pc(N, _).
+is_valid_mode(M) :- member(M, [major, minor]).
+is_valid_chord(C) :- parse_chord(C, _, _, _).
+
+% ------------------------------------------------------------------
+% ҮНДСЭН ЦЭС (Main Menu)
+% ------------------------------------------------------------------
+
+main_menu :-
+    repeat,
+    nl,
+    writeln('1. Akkord shiljuuleh (Transpose Chord)'),
+    writeln('2. Tuhkiiryn gamm harah (Scale)'),
+    writeln('3. Diatonik akkorduud harah (Diatonic Chords)'),
+    writeln('4. Akkord ali tuhkvvrt bagtakhyg harah (Key Finder)'),
+    writeln('5. Garakh (Exit)'),
+    writeln('------------------------------------------'),
+    write('Songolt (1-5): '),
+    read(Choice),
+    ( Choice == 5 -> 
+        writeln('Bayartai!'), ! 
+    ; 
+        handle_choice(Choice),
+        fail 
+    ).
+
+
+handle_choice(1) :-
+    ask_until_valid('Akkordoo oruul (jishee ni: \'Am7\' haaltiig zaawal bicne vv!): ', is_valid_chord, Chord),
+    write('Heden hagas ton shiljuuleh ve? (toogoor): '), read(Steps),
+    transpose_chord(Chord, Steps, Result),
+    format('~n>>> Shiljuulsen akkord: ~w <<<~n', [Result]).
+
+handle_choice(2) :-
+    ask_until_valid('Tuhkuuree oruul (jishee ni: \'D\' haaltiig zaawal bicne vv!): ', is_valid_note, Key),
+    major_key_scale(Key, Major),
+    minor_key_scale(Key, Minor),
+    format('~n>>> ~w Major scale: ~w <<<~n', [Key, Major]),
+    format('>>> ~w Minor scale: ~w <<<~n', [Key, Minor]).
+
+handle_choice(3) :-
+    ask_until_valid('Tuhkuuree oruul (jishee ni: \'D\' haaltiig zaawal bicne vv!):', is_valid_note, Key),
+    ask_until_valid('Tolov (major/minor): ', is_valid_mode, Mode),
+    diatonic_chords(Mode, Key, Chords),
+    format('~n>>> ~w ~w-n diatonik akkorduud: ~w <<<~n', [Key, Mode, Chords]).
+
+handle_choice(4) :-
+    ask_until_valid('Akkordoo oruul (jishee ni: \'Am7\' haaltiig zaawal bicne vv!): ', is_valid_chord, Chord),
+    keys_containing_chord(major, Chord, MajKeys),
+    keys_containing_chord(minor, Chord, MinKeys),
+    format('~n>>> ~w bagtsan Major tuhkiiruud: ~w <<<~n', [Chord, MajKeys]),
+    format('>>> ~w bagtsan Minor tuhkiiruud: ~w <<<~n', [Chord, MinKeys]).
+
+% Цэсний дугаар буруу үед
+handle_choice(Choice) :-
+    \+ member(Choice, [1, 2, 3, 4, 5]),
+    nl,
+    writeln('!!! ALDAA: 1-5-iin hoorond too songono uu. !!!').
